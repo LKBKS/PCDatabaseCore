@@ -65,15 +65,38 @@
     return [self fetchedManagedObjectsForEntity:entityName withPredicate:predicate withSortingByKey:key ascending:YES];
 }
 
-- (NSFetchRequest *)fetchedManagedObjectsInContext:(NSManagedObjectContext *)context forEntity:(NSString *)entityName withPredicate:(NSPredicate *)predicate withSortingByKey:(NSString *)key ascending:(BOOL)asc
+- (NSFetchRequest *)fetchedManagedObjectsInContext:(NSManagedObjectContext *)context
+                                         forEntity:(NSString *)entityName
+                                     withPredicate:(NSPredicate *)predicate
+                                 withSortingByKey:(NSString *)key
+                                         ascending:(BOOL)asc
+{
+    NSArray *keys = nil;
+    if (key != nil) {
+        keys = @[key];
+    }
+    return [self fetchedManagedObjectsInContext:context forEntity:entityName withPredicate:predicate withSortingByKeys:keys ascending:asc];
+}
+
+
+- (NSFetchRequest *)fetchedManagedObjectsInContext:(NSManagedObjectContext *)context
+                                         forEntity:(NSString *)entityName
+                                     withPredicate:(NSPredicate *)predicate
+                                  withSortingByKeys:(NSArray *)keys
+                                         ascending:(BOOL)asc
 {
     
     if (!entityName)
         return nil;
     NSEntityDescription *entity = [NSEntityDescription entityForName:entityName inManagedObjectContext:context];
     
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:key ascending:asc];
-    NSArray *sortDescriptors = @[sortDescriptor];
+    
+    NSMutableArray *sortDescriptors = [NSMutableArray array];
+    for (NSString * key in keys) {
+        NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:key ascending:asc];
+        [sortDescriptors addObject:sortDescriptor];
+    }
+
     NSFetchRequest *request = [[NSFetchRequest alloc] init];
     [request setSortDescriptors:sortDescriptors];
     request.entity = entity;

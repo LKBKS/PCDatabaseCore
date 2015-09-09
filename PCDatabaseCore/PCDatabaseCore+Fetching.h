@@ -58,6 +58,13 @@
                                           selector:(SEL)selector
                                          ascending:(BOOL)asc;
 
+- (NSFetchRequest *)fetchedManagedObjectsInContext:(NSManagedObjectContext *)context
+                                         forEntity:(NSString *)entityName
+                                     withPredicate:(NSPredicate *)predicate
+                                 withSortingByKeys:(NSArray *)keys
+                                         ascending:(BOOL)asc;
+
+
 
 #pragma mark - Fetching
 - (NSArray *)fetchedManagedObjectsInContext:(NSManagedObjectContext *)context
