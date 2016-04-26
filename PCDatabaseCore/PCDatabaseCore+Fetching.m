@@ -20,45 +20,23 @@
     }
 }
 - (NSFetchRequest *)fetchedManagedObjectsInContext:(NSManagedObjectContext *)context
-                                forEntity:(NSString *)entityName withPredicate:(NSPredicate *)predicate
+                                         forEntity:(NSString *)entityName withPredicate:(NSPredicate *)predicate
 {
-    if (!entityName)
-        return nil;
-    
-    NSEntityDescription *entity = [NSEntityDescription entityForName:entityName inManagedObjectContext:context];
-    
-    NSFetchRequest *request = [[NSFetchRequest alloc] init];
-    request.entity = entity;
-    request.fetchBatchSize = self.fetchBatchSize;
-    if (predicate != nil)
-        request.predicate = predicate;
-    [request setIncludesSubentities:NO];
-
-    return request;
+    return [self fetchedManagedObjectsInContext:context
+                                      forEntity:entityName
+                                  withPredicate:predicate
+                               withSortingByKey:nil
+                                       selector:nil
+                                      ascending:YES];
 }
 - (NSFetchRequest *)fetchedManagedObjectsForEntity:(NSString *)entityName withPredicate:(NSPredicate *)predicate withSortingByKey:(NSString *)key ascending:(BOOL)asc
 {
-    @synchronized(self)
-    {
-        if (!entityName)
-            return nil;
-        
-        NSManagedObjectContext *context = [self mainObjectContext];
-        NSEntityDescription *entity = [NSEntityDescription entityForName:entityName inManagedObjectContext:context];
-        
-        NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:key ascending:asc];
-        NSArray *sortDescriptors = @[sortDescriptor];
-        NSFetchRequest *request = [[NSFetchRequest alloc] init];
-        [request setSortDescriptors:sortDescriptors];
-        request.entity = entity;
-        request.fetchBatchSize = self.fetchBatchSize;
-        [request setIncludesSubentities:NO];
-        
-        if(predicate != nil)
-            [request setPredicate:predicate];
-        
-        return request;
-    }
+    return [self fetchedManagedObjectsInContext:[self mainObjectContext]
+                                      forEntity:entityName
+                                  withPredicate:predicate
+                               withSortingByKey:key
+                                       selector:nil
+                                      ascending:asc];
 }
 - (NSFetchRequest *)fetchedManagedObjectsForEntity:(NSString *)entityName withPredicate:(NSPredicate *)predicate withSortingByKey:(NSString *)key
 {
@@ -68,7 +46,7 @@
 - (NSFetchRequest *)fetchedManagedObjectsInContext:(NSManagedObjectContext *)context
                                          forEntity:(NSString *)entityName
                                      withPredicate:(NSPredicate *)predicate
-                                 withSortingByKey:(NSString *)key
+                                  withSortingByKey:(NSString *)key
                                          ascending:(BOOL)asc
 {
     NSArray *keys = nil;
@@ -82,39 +60,23 @@
 - (NSFetchRequest *)fetchedManagedObjectsInContext:(NSManagedObjectContext *)context
                                          forEntity:(NSString *)entityName
                                      withPredicate:(NSPredicate *)predicate
-                                  withSortingByKeys:(NSArray *)keys
+                                 withSortingByKeys:(NSArray *)keys
                                          ascending:(BOOL)asc
 {
-    
-    if (!entityName)
-        return nil;
-    NSEntityDescription *entity = [NSEntityDescription entityForName:entityName inManagedObjectContext:context];
-    
-    
-    NSMutableArray *sortDescriptors = [NSMutableArray array];
-    for (NSString * key in keys) {
-        NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:key ascending:asc];
-        [sortDescriptors addObject:sortDescriptor];
-    }
-
-    NSFetchRequest *request = [[NSFetchRequest alloc] init];
-    [request setSortDescriptors:sortDescriptors];
-    request.entity = entity;
-    request.fetchBatchSize = self.fetchBatchSize;
-    [request setIncludesSubentities:NO];
-    
-    
-    if(predicate != nil)
-        [request setPredicate:predicate];
-    return request;
+    return [self fetchedManagedObjectsInContext:context
+                                      forEntity:entityName
+                                  withPredicate:predicate
+                              withSortingByKeys:keys
+                                       selector:nil
+                                      ascending:asc];
 }
 
 - (NSFetchRequest *)fetchedManagedObjectsInContext:(NSManagedObjectContext *)context
-                                  forEntity:(NSString *)entityName
-                              forProperties:(NSArray *)properties
-                              withPredicate:(NSPredicate *)predicate
-                           withSortingByKey:(NSString *)key
-                                  ascending:(BOOL)asc
+                                         forEntity:(NSString *)entityName
+                                     forProperties:(NSArray *)properties
+                                     withPredicate:(NSPredicate *)predicate
+                                  withSortingByKey:(NSString *)key
+                                         ascending:(BOOL)asc
 {
     if (!entityName)
         return nil;
@@ -137,9 +99,9 @@
 }
 
 - (NSFetchRequest *)fetchedManagedObjectsInContext:(NSManagedObjectContext *)context
-                                  forEntity:(NSString *)entityName
-                              withPredicate:(NSPredicate *)predicate
-                           withSortingByKey:(NSString *)key
+                                         forEntity:(NSString *)entityName
+                                     withPredicate:(NSPredicate *)predicate
+                                  withSortingByKey:(NSString *)key
 {
     return [self fetchedManagedObjectsInContext:context forEntity:entityName withPredicate:predicate withSortingByKey:key ascending:YES];
 }
@@ -165,34 +127,69 @@
                                           selector:(SEL)selector
                                          ascending:(BOOL)asc
 {
+    NSArray *keys = nil;
+    if (key != nil) {
+        keys = @[key];
+    }
+    
+    return [self fetchedManagedObjectsInContext:context
+                                      forEntity:entityName
+                                  withPredicate:predicate
+                              withSortingByKeys:keys
+                                       selector:selector
+                                      ascending:asc];
+}
+
+- (NSFetchRequest *)fetchedManagedObjectsInContext:(NSManagedObjectContext *)context
+                                         forEntity:(NSString *)entityName
+                                     withPredicate:(NSPredicate *)predicate
+                                 withSortingByKeys:(NSArray *)keys
+                                          selector:(SEL)selector
+                                         ascending:(BOOL)asc
+{
     @synchronized(self)
     {
         if (!entityName)
             return nil;
-        
         NSEntityDescription *entity = [NSEntityDescription entityForName:entityName inManagedObjectContext:context];
-        NSSortDescriptor *sortDescriptor;
-        if(selector){
-            sortDescriptor = [[NSSortDescriptor alloc] initWithKey:key ascending:asc selector:selector];
-        }else{
-            sortDescriptor = [[NSSortDescriptor alloc] initWithKey:key ascending:asc];
-        }
-        NSArray *sortDescriptors = @[sortDescriptor];
         NSFetchRequest *request = [[NSFetchRequest alloc] init];
-        [request setSortDescriptors:sortDescriptors];
+        
+        NSArray *sortDescriptors = [self sortDescriptorsForKeys:keys withSelector:selector ascending:asc];
+        if (sortDescriptors != nil) {
+            [request setSortDescriptors:sortDescriptors];
+        }
+        
         request.entity = entity;
         request.fetchBatchSize = self.fetchBatchSize;
         [request setIncludesSubentities:NO];
         
         if(predicate != nil)
             [request setPredicate:predicate];
-        
         return request;
     }
 }
 
-
-
+- (NSArray *)sortDescriptorsForKeys:(NSArray *)keys
+                       withSelector:(SEL)selector
+                          ascending:(BOOL)asc
+{
+    if (keys == nil || keys.count == 0) {
+        return nil;
+    }
+    
+    NSMutableArray *sortDescriptors = [NSMutableArray array];
+    for (NSString * key in keys) {
+        NSSortDescriptor *sortDescriptor;
+        if(selector){
+            sortDescriptor = [[NSSortDescriptor alloc] initWithKey:key ascending:asc selector:selector];
+        } else{
+            sortDescriptor = [[NSSortDescriptor alloc] initWithKey:key ascending:asc];
+        }
+        
+        [sortDescriptors addObject:sortDescriptor];
+    }
+    return sortDescriptors;
+}
 
 - (NSArray *)fetchedManagedObjectsInContext:(NSManagedObjectContext *)context
                                   forEntity:(NSString *)entityName
@@ -330,6 +327,5 @@
             });
     }];
 }
-
 
 @end
