@@ -4,6 +4,7 @@ Pod::Spec.new do |s|
   s.summary      = 'Objective-C wrapper for Core Data'
   s.description  = 'Highly customizable objective-C wrapper for Core Data'
   s.homepage     = 'https://github.com/LKBKS/PCDatabaseCore'
+  s.source       = { :git => 'https://github.com/LKBKS/PCDatabaseCore.git', :tag => 'v0.1.0' }
   s.license      = 'MIT'
   s.author             = { 'Paweł Nużka' => 'pawelqus@gmail.com' }
   s.social_media_url   = 'https://twitter.com/pawelnuzka'
