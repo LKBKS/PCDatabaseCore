@@ -173,9 +173,13 @@ static dispatch_once_t onceToken;
     }
 
     NSError *error = nil;
-    NSDictionary *options = nil;
+    NSDictionary *migrationOptions = @{
+                                       NSMigratePersistentStoresAutomaticallyOption: @YES,
+                                       NSInferMappingModelAutomaticallyOption: @YES
+                                       };
+    NSMutableDictionary *options = [NSMutableDictionary dictionaryWithDictionary:migrationOptions];
 #if DEBUG
-    options = @{ NSSQLitePragmasOption : @{@"journal_mode" : @"DELETE"} };
+    [options addEntriesFromDictionary: @{ NSSQLitePragmasOption : @{@"journal_mode" : @"DELETE"} }];
 #endif
     persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:self.managedObjectModel];
     if (![persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:storeUrl options:options error:&error])
