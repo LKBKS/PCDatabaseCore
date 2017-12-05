@@ -146,8 +146,16 @@ static dispatch_once_t onceToken;
 
 - (void)setPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)_persistentStoreCoordinator
 {
-    if (!persistentStoreCoordinator)
-        persistentStoreCoordinator = _persistentStoreCoordinator;
+	persistentStoreCoordinator = _persistentStoreCoordinator;
+	if (persistentStoreCoordinator) {
+    	[self setStoreInManagedObjectContext:mainObjectContext];
+		[self setStoreInManagedObjectContext:writerObjectContext];
+		[self setStoreInManagedObjectContext:backgroundObjectContext];
+  	} else {
+		writerObjectContext = nil;
+		mainObjectContext = nil;
+		backgroundObjectContext = nil;
+  	}
 }
 
 - (NSPersistentStoreCoordinator *)persistentStoreCoordinator
