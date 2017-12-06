@@ -11,7 +11,6 @@
 @implementation UIApplication (Directories)
 - (NSString *)applicationDocumentsDirectory
 {
-    NSString *libraryDirectory = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) lastObject];
-    return [NSString stringWithFormat:@"%@/Caches", libraryDirectory];
+    return [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) lastObject];
 }
 @end
