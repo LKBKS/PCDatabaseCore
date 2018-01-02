@@ -71,6 +71,7 @@ NSString *kEntityName = @"TestEntity";
     savedEntities = [self.sharedInstance createEntities:kEntityName withKey:@"dbId" andValues:dbIds error:nil];
     XCTAssertTrue(savedEntities.count == dbIds.count, @"it should return all created entities");
 }
+
 - (void)testUnorderdMultipleEntites
 {
     NSArray *dbIds = @[@1, @2, @3, @4];
@@ -79,7 +80,9 @@ NSString *kEntityName = @"TestEntity";
         [self.sharedInstance createEntities:kEntityName withKey:@"dbId" andValues:obj error:nil];
     }];
     NSInteger entityCounter = [self.sharedInstance getCountOfEntities:kEntityName inContext:self.testContext];
-    XCTAssertTrue(entityCounter == dbIds.count, @"should not duplicate events");}
+    XCTAssertTrue(entityCounter == dbIds.count, @"should not duplicate events");
+}
+
 - (void)testOverlappingIdsCreation
 {
     NSArray *dbIds = @[@1, @2, @5];

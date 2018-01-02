@@ -169,6 +169,38 @@
     }
 }
 
+- (NSFetchRequest *)fetchedManagedObjectsInContext:(NSManagedObjectContext *)context
+                                         forEntity:(NSString *)entityName
+                                     withPredicate:(NSPredicate *)predicate
+                                         ascending:(BOOL)asc
+                                 withSortingByKeys:(NSArray *)keys
+                                         selectors:(NSArray *)selectors {
+    @synchronized(self)
+    {
+        if (!entityName)
+            return nil;
+        NSEntityDescription *entity = [NSEntityDescription entityForName:entityName inManagedObjectContext:context];
+        NSFetchRequest *request = [[NSFetchRequest alloc] init];
+        
+        NSMutableArray *sortDescriptors = [NSMutableArray arrayWithCapacity:keys.count];
+        
+        for (int i = 0; i < keys.count; i++) {
+            SEL selector = NSSelectorFromString(selectors[i]);
+            NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:keys[i] ascending:asc selector:selector];
+            [sortDescriptors addObject: sortDescriptor];
+        }
+        
+        [request setSortDescriptors:sortDescriptors];
+        request.entity = entity;
+        request.fetchBatchSize = self.fetchBatchSize;
+        [request setIncludesSubentities:NO];
+        
+        if(predicate != nil)
+            [request setPredicate:predicate];
+        return request;
+    }
+}
+
 - (NSArray *)sortDescriptorsForKeys:(NSArray *)keys
                        withSelector:(SEL)selector
                           ascending:(BOOL)asc
