@@ -99,7 +99,7 @@ static dispatch_once_t onceToken;
     }
     
     mainObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-    [mainObjectContext setParentContext:self.writerObjectContext];
+    [mainObjectContext setParentContext:[self writerObjectContext]];
     [mainObjectContext setUndoManager:nil];
     return mainObjectContext;
 }
