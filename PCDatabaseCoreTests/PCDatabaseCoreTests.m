@@ -209,6 +209,51 @@ NSString *kEntityName = @"TestEntity";
 }
 
 
+- (void)testCreateDuplicatesFromMultipleContexts
+{
+    int allThreads = 32;
+    
+    NSMutableArray *dbIds = [NSMutableArray arrayWithCapacity:kEntityCount];
+    XCTestExpectation *expectation4 = [self expectationWithDescription:@"test create duplicates in background"];
+    
+    for (int i = 0; i < kEntityCount; i++) {
+        [dbIds addObject:@(i)];
+    }
+
+    dispatch_group_t group = dispatch_group_create();
+
+    for (int i = 0; i < allThreads; i++) {
+        dispatch_group_enter(group);
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+            NSManagedObjectContext *context = [self.sharedInstance backgroundObjectContext];
+            
+            [context performBlock:^{
+                [self.sharedInstance createEntities:kEntityName
+                                            withKey:@"dbId"
+                                          andValues:dbIds
+                                          inContext:context
+                                              error:nil];
+                dispatch_group_leave(group);
+            }];
+        });
+    }
+    
+    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+        [expectation4 fulfill];
+    });
+    
+    [self waitForExpectationsWithTimeout:kSaveTimeout
+                                 handler:^(NSError *error)
+     {
+         if (error){
+             XCTFail(@"%@",error);
+         }
+     }];
+    
+    NSInteger entityCounter = [self.sharedInstance getCountOfEntities:kEntityName inContext:self.testContext];
+    XCTAssertTrue(entityCounter == kEntityCount, @"should not duplicate events expected %d, got %ld", kEntityCount, entityCounter);
+}
+
 
 - (void)testCreatePartialyDuplicatesInParallel
 {

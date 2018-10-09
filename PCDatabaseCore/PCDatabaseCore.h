@@ -17,7 +17,7 @@ typedef void (^ErrorHandleBlock)(NSError *error);
  */
 extern const int kPCDatabaseCoreFetchBatchSize;
 extern const int kPCDatabaseCoreSaveBatchSize;
-extern  NSString const *kPCDatabaseCoreTypeSqlite;
+extern  NSString * const kPCDatabaseCoreTypeSqlite;
 
 @interface PCDatabaseCore : NSObject
 

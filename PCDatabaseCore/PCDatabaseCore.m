@@ -21,7 +21,7 @@ const int kPCDatabaseCoreFetchBatchSize = 10;
 const int kPCDatabaseCoreSaveBatchSize = 1000;
 
 static NSString *kPCDatabaseCoreName = @"DatabaseName";
-NSString const *kPCDatabaseCoreTypeSqlite = @"sqlite";
+NSString * const kPCDatabaseCoreTypeSqlite = @"sqlite";
 
 static id dbSharedInstance;
 static dispatch_once_t onceToken;
@@ -93,14 +93,16 @@ static dispatch_once_t onceToken;
 
 - (NSManagedObjectContext *)mainObjectContext
 {
-    if (mainObjectContext != nil)
-    {
-        return mainObjectContext;
-    }
-    
-    mainObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-    [mainObjectContext setParentContext:[self writerObjectContext]];
-    [mainObjectContext setUndoManager:nil];
+     @synchronized (self) {
+         if (mainObjectContext != nil)
+         {
+             return mainObjectContext;
+         }
+         
+         mainObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+         [mainObjectContext setParentContext:[self writerObjectContext]];
+         [mainObjectContext setUndoManager:nil];
+     }
     return mainObjectContext;
 }
 
@@ -123,11 +125,13 @@ static dispatch_once_t onceToken;
 
 - (NSManagedObjectContext *)backgroundObjectContext
 {
-    if (backgroundObjectContext == nil)
-    {
-        backgroundObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        [backgroundObjectContext setParentContext:[self mainObjectContext]];
-        [backgroundObjectContext setUndoManager:nil];
+    @synchronized (self) {
+        if (backgroundObjectContext == nil)
+        {
+            backgroundObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+            [backgroundObjectContext setParentContext:[self mainObjectContext]];
+            [backgroundObjectContext setUndoManager:nil];
+        }
     }
     return backgroundObjectContext;
 }

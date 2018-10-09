@@ -65,7 +65,7 @@
 
 - (void)removeEntity:(NSString *)entityName
    matchingPredicate:(NSPredicate *)predicate
-        inBackground:(void (^)())success
+        inBackground:(void (^)(void))success
              failure:(ErrorHandleBlock)failure
 {
     NSManagedObjectContext *context = [self backgroundObjectContext];
@@ -107,7 +107,7 @@
 }
 
 - (void)removeEntities:(NSArray *)entities
-          inBackground:(void (^)())success
+          inBackground:(void (^)(void))success
                failure:(ErrorHandleBlock)failure
 {
     NSManagedObjectContext *context = [self backgroundObjectContext];
@@ -156,7 +156,7 @@
 
 
 - (void)removeAllEntities:(NSString *)entityName
-             inBackground:(void (^)())success
+             inBackground:(void (^)(void))success
                   failure:(ErrorHandleBlock)failure
 {
     return [self removeEntity:entityName matchingPredicate:nil inBackground:success failure:failure];

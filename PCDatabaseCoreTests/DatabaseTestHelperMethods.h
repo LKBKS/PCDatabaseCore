@@ -10,8 +10,6 @@
 @interface DatabaseTestHelperMethods : NSObject
 + (NSArray *)prepareDbIdArrayWithStartingIndex:(NSInteger)start endIndex:(NSInteger)endIndex;
 + (void)setUpContextsForTesting;
-+ (NSManagedObjectContext *)managedObjectContextForTesting;
-+ (NSManagedObjectContext *)backgroundObjectContextForTesting;
 + (NSArray *)expectationsArrayWithCapacity:(NSInteger)capacity
                                description:(NSString *)description
                                   testCase:(XCTestCase *)testCase;

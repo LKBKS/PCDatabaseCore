@@ -16,15 +16,15 @@
 - (NSError *)removeEntities:(NSArray *)entities inContext:(NSManagedObjectContext *)context;
 - (void)removeEntity:(NSString *)entityName
    matchingPredicate:(NSPredicate *)predicate
-        inBackground:(void (^)())success
+        inBackground:(void (^)(void))success
              failure:(ErrorHandleBlock)failure;
 - (void)removeEntities:(NSArray *)entities
-        inBackground:(void (^)())success
+        inBackground:(void (^)(void))success
                failure:(ErrorHandleBlock)failure;
 - (NSError *)removeAllEntities:(NSString *)entityName;
 - (NSError *)removeAllEntities:(NSString *)entityName inContext:(NSManagedObjectContext *)context;
 - (void)removeAllEntities:(NSString *)entityName
-             inBackground:(void (^)())success
+             inBackground:(void (^)(void))success
                   failure:(ErrorHandleBlock)failure;
 
 - (NSError *)removeAllDataFromDatabase;
